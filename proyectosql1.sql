@@ -52,3 +52,38 @@ INSERT INTO carritoCompra(id_carritoCompra, fechaHora, cantidadProducto,  id_usu
 (1, '2021-01-10 20:00:00', 2, 3, 2), 
 (2, '2020-10-25 12:30:20', 1, 5, 1),
 (3, '2023-12-30 19:45:20', 2, 1, 3);
+
+/*Obtener todos los productos con su categoría correspondiente:*/
+
+SELECT p.nombre, p.precio, c.nombre AS categoria
+FROM producto p
+INNER JOIN categoria c ON p.id_categoria = c.id_categoria;
+
+/* es una función llamada calcularDescuento que recibe dos parámetros de entrada: precio y descuento. 
+La función realiza un cálculo para aplicar un descuento al precio dado.
+ El resultado del cálculo se almacena en la variable precio_final y se devuelve como resultado de la función.*/
+
+DELIMITER //
+
+CREATE FUNCTION calcularDescuento(precio INT, descuento FLOAT) RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE precio_final INT;
+    
+    if precio < 300 then
+    SET precio_final = precio;
+    
+    ELSEIF precio >= 300 then
+    SET precio_final = precio - (precio * descuento);
+    end if;
+    RETURN precio_final;
+END
+//
+
+DELIMITER ;
+
+SELECT calcularDescuento(500, 0.2) AS precio_con_descuento;
+
+
+
+
