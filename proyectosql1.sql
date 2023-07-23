@@ -84,6 +84,79 @@ DELIMITER ;
 
 SELECT calcularDescuento(500, 0.2) AS precio_con_descuento;
 
+/*vistas*/
+
+/* La vista "vista_productos" muestra información detallada de los
+ productos, incluyendo su ID, nombre, precio, cantidad en stock y el nombre de la categoría a la que pertenecen. */
+
+
+CREATE VIEW vista_productos AS
+SELECT id_producto, nombre, precio, cantidadStock, nombre AS categoria
+FROM producto
+JOIN categoria ON producto.id_categoria = categoria.id_categoria;
+
+SELECT * FROM vista_productos;
+
+
+/*La vista "vista_carrito_compra" muestra información detallada de los registros del
+ carrito de compra, incluyendo su ID, fecha y hora, cantidad de productos, el nombre del usuario que realizó la compra y 
+ el nombre del producto comprado.*/
+
+CREATE VIEW vista_carrito_compra AS
+SELECT c.id_carritoCompra, c.fechaHora, c.cantidadProducto, u.nombre AS nombre_usuario, p.nombre AS nombre_producto
+FROM carritoCompra c
+JOIN usuario u ON c.id_usuario = u.id_usuario
+JOIN producto p ON c.id_producto = p.id_producto;
+
+SELECT * FROM vista_carrito_compra;
+
+/*Stored Procedure*/
+
+DROP PROCEDURE IF EXISTS agregarUsuario;
+ 
+/* se creó para proporcionar una forma reutilizable y
+ eficiente de obtener una lista de productos que pertenecen a una categoría específica en la base de datos.*/
+
+DELIMITER //
+
+CREATE PROCEDURE mostrarProductosPorCategoria(IN nombre_categoria VARCHAR(30))
+BEGIN
+    SELECT p.nombre, p.precio, p.descripcion, p.cantidadStock, c.nombre AS categoria
+    FROM producto p
+    INNER JOIN categoria c ON p.id_categoria = c.id_categoria
+    WHERE c.nombre = nombre_categoria;
+END;
+
+//
+
+DELIMITER ;
+
+CALL mostrarProductosPorCategoria('procesadores');
+
+/* fue creado con el objetivo de mostrar el detalle de una compra específica
+ realizada en la base de datos. */
+
+DELIMITER //
+
+CREATE PROCEDURE mostrarDetalleCompra(IN id_carritoCompra INT)
+BEGIN
+    SELECT u.nombre AS nombre_usuario, u.email, u.celular, u.direccion,
+           p.nombre AS nombre_producto, p.precio, cc.cantidadProducto,
+           cc.fechaHora
+    FROM carritoCompra cc
+    INNER JOIN usuario u ON cc.id_usuario = u.id_usuario
+    INNER JOIN producto p ON cc.id_producto = p.id_producto
+    WHERE cc.id_carritoCompra = id_carritoCompra;
+END;
+
+//
+
+DELIMITER ;
+
+CALL mostrarDetalleCompra(1);
+
+
+
 
 
 
