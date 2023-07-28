@@ -53,6 +53,8 @@ INSERT INTO carritoCompra(id_carritoCompra, fechaHora, cantidadProducto,  id_usu
 (2, '2020-10-25 12:30:20', 1, 5, 1),
 (3, '2023-12-30 19:45:20', 2, 1, 3);
 
+/* funciones*/
+
 /*Obtener todos los productos con su categoría correspondiente:*/
 
 SELECT p.nombre, p.precio, c.nombre AS categoria
@@ -112,7 +114,6 @@ SELECT * FROM vista_carrito_compra;
 
 /*Stored Procedure*/
 
-DROP PROCEDURE IF EXISTS agregarUsuario;
  
 /* se creó para proporcionar una forma reutilizable y
  eficiente de obtener una lista de productos que pertenecen a una categoría específica en la base de datos.*/
@@ -156,7 +157,58 @@ DELIMITER ;
 CALL mostrarDetalleCompra(1);
 
 
+/*tabla log*/
 
+CREATE TABLE log (
+  id_log INT PRIMARY KEY AUTO_INCREMENT,
+  tabla_afectada VARCHAR(50) NOT NULL,
+  accion VARCHAR(20) NOT NULL,
+  fecha_hora DATETIME NOT NULL,
+  detalle VARCHAR(200)
+);
 
+/*triggers*/
 
+-- Creamos un Trigger AFTER INSERT en la tabla "usuario" para registrar las inserciones en el log
+DELIMITER //
+CREATE TRIGGER after_insert_usuario
+AFTER INSERT ON usuario
+FOR EACH ROW
+BEGIN
+  INSERT INTO log (tabla_afectada, accion, fecha_hora, detalle)
+  VALUES ('usuario', 'INSERT', NOW(), CONCAT('ID de usuario insertado: ', NEW.id_usuario));
+END;
+//
+DELIMITER ;
+
+-- Creamos un Trigger AFTER UPDATE en la tabla "usuario" para registrar las actualizaciones en el log
+DELIMITER //
+CREATE TRIGGER after_update_usuario
+AFTER UPDATE ON usuario
+FOR EACH ROW
+BEGIN
+  INSERT INTO log (tabla_afectada, accion, fecha_hora, detalle)
+  VALUES ('usuario', 'UPDATE', NOW(), CONCAT('ID de usuario actualizado: ', NEW.id_usuario));
+END;
+//
+DELIMITER ;
+
+-- Creamos un Trigger AFTER DELETE en la tabla "usuario" para registrar las eliminaciones en el log
+DELIMITER //
+CREATE TRIGGER after_delete_usuario
+AFTER DELETE ON usuario
+FOR EACH ROW
+BEGIN
+  INSERT INTO log (tabla_afectada, accion, fecha_hora, detalle)
+  VALUES ('usuario', 'DELETE', NOW(), CONCAT('ID de usuario eliminado: ', OLD.id_usuario));
+END;
+//
+DELIMITER ;
+
+INSERT INTO usuario (id_usuario, nombre, email, contrasena, celular, direccion) 
+VALUES (6 , 'Juan Pérez', 'juanperez@example.com', 'Password123', 1234567890, 'Calle 123, Ciudad');
+
+DELETE FROM usuario WHERE id_usuario = 6;
+
+select * from log;
 
