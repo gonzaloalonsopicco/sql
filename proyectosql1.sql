@@ -212,3 +212,57 @@ DELETE FROM usuario WHERE id_usuario = 6;
 
 select * from log;
 
+
+
+/*transacciones*/
+
+-- agregar  usuario
+
+START TRANSACTION;
+
+    -- Insertar registros en la tabla "usuario"
+    INSERT INTO usuario (id_usuario, nombre, email, contrasena, celular, direccion)
+    VALUES (6, 'Nuevo Usuario 1', 'usuario1@gmail.com', 'contrasena1', 1234567890, 'Dirección 1');
+    INSERT INTO usuario (id_usuario, nombre, email, contrasena, celular, direccion)
+    VALUES (7, 'Nuevo Usuario 2', 'usuario2@gmail.com', 'contrasena2', 987654321, 'Dirección 2');
+
+select * from usuario;
+
+-- ROLLBACK;
+
+-- COMMIT;
+
+
+
+-- insertar registros en la tabla carritoCompra
+
+-- Inicio de la transacción
+START TRANSACTION;
+
+-- Insertar nuevos registros en la tabla "carritoCompra"
+INSERT INTO carritoCompra (id_carritoCompra, fechaHora, cantidadProducto, id_usuario, id_producto)
+VALUES (4, '2023-07-15 10:00:00', 3, 3, 1), 
+ (5, '2023-07-15 11:00:00', 1, 2, 5), 
+ (6, '2023-07-15 12:00:00', 2, 1, 3);
+
+-- Agregar el primer savepoint después de la inserción del registro 
+SAVEPOINT savepoint_1;
+
+INSERT INTO carritoCompra (id_carritoCompra, fechaHora, cantidadProducto, id_usuario, id_producto)
+VALUES (7, '2023-07-15 13:00:00', 2, 4, 4), 
+(8, '2023-07-15 14:00:00', 1, 5, 2);
+
+-- Agregar el segundo savepoint después de la inserción del registro 
+SAVEPOINT savepoint_2;
+
+-- eliminación del savepoint de los primeros 3 registros insertados
+-- RELEASE SAVEPOINT savepoint_1;
+
+select * from carritoCompra;
+
+ -- ROLLBACK;
+
+-- COMMIT;
+
+
+
